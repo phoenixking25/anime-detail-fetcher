@@ -6,6 +6,7 @@ import re
 import base64
 import os
 import Tkinter, tkFileDialog
+import keyboard 
 
 
 apiurl = "https://myanimelist.net/api/anime/search.xml?q="
@@ -18,14 +19,33 @@ def main():
     directory = getpath()
     dirs = os.listdir(directory)
     for i in dirs:
+        try:
+            if keyboard.is_pressed('q'):
+                print('You Pressed A Key!')
+                break
+            elif keyboard.is_pressed('s'):
+                continue
+        except:
+            pass
         req_url = apiurl + i.replace(" ", "_")
-        print "searching for %r"% i
+        print "searching for %r......."% i
         headers = {"Authorization": "Basic " + auth}
         r = requests.get(req_url, headers = headers)
         data = r.text
+        if data == '':
+            print "name error"
+            continue
         soup = BeautifulSoup(data, 'html.parser')
         # print data.encode('cp437', 'ignore')
-        print soup.score.string
+        name = []
+        scores = []
+        for score in soup.find_all('score'):
+            scores.append(score.string)
+        for title in soup.find_all('title'):
+            name.append(title.string)
+        for i in xrange(len(name)):
+            print name[i].encode('cp437', 'ignore')
+            print scores[i]
 
 
 def encoder():
